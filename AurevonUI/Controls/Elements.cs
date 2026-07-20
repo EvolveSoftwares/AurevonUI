@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using SkiaSharp;
 
 namespace AurevonUI.Elements;
 
@@ -62,6 +63,7 @@ public class TextControl : Control
     internal string InitialText = "";
     internal bool HasCapturedText;
     internal bool Activated;
+    internal SKTextAlign TextAlignment = SKTextAlign.Left;
 }
 
 public sealed class TextBox : TextControl

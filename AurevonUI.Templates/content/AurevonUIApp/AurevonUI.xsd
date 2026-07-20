@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified">
+
+  <xs:simpleType name="HAlignType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Left" />
+      <xs:enumeration value="Center" />
+      <xs:enumeration value="Right" />
+      <xs:enumeration value="Stretch" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="VAlignType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Top" />
+      <xs:enumeration value="Center" />
+      <xs:enumeration value="Bottom" />
+      <xs:enumeration value="Stretch" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="StretchType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="None" />
+      <xs:enumeration value="Uniform" />
+      <xs:enumeration value="Fill" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="CursorType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Default" />
+      <xs:enumeration value="Arrow" />
+      <xs:enumeration value="Hand" />
+      <xs:enumeration value="Text" />
+      <xs:enumeration value="Wait" />
+      <xs:enumeration value="Crosshair" />
+      <xs:enumeration value="No" />
+      <xs:enumeration value="SizeAll" />
+      <xs:enumeration value="SizeNS" />
+      <xs:enumeration value="SizeWE" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="WindowStyleType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Window" />
+      <xs:enumeration value="None" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="StartupLocationType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Manual" />
+      <xs:enumeration value="CenterScreen" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TypeModuleType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Text" />
+      <xs:enumeration value="TextControl" />
+      <xs:enumeration value="TextBox" />
+      <xs:enumeration value="ScrollViewer" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="BoolType">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="True" />
+          <xs:enumeration value="False" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:pattern value="true|false|1|0" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+
+  <xs:complexType name="ControlType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element ref="Control" />
+      <xs:element ref="Background" />
+      <xs:element ref="CloseButton" />
+    </xs:choice>
+    <xs:attribute name="Name" type="xs:string" />
+    <xs:attribute name="Type" type="TypeModuleType" />
+    <xs:attribute name="HorizontalAlignment" type="HAlignType" />
+    <xs:attribute name="VerticalAlignment" type="VAlignType" />
+    <xs:attribute name="OffsetX" type="xs:float" />
+    <xs:attribute name="OffsetY" type="xs:float" />
+    <xs:attribute name="Margin" type="xs:string" />
+    <xs:attribute name="MarginPercent" type="xs:string" />
+    <xs:attribute name="Cursor" type="CursorType" />
+    <xs:attribute name="Opacity" type="xs:float" />
+    <xs:attribute name="Scale" type="xs:float" />
+    <xs:attribute name="StretchToWindow" type="BoolType" />
+    <xs:attribute name="IsHittable" type="BoolType" />
+    <xs:attribute name="IsEnabled" type="BoolType" />
+    <xs:attribute name="Visible" type="BoolType" />
+    <xs:attribute name="Fill" type="xs:string" />
+    <xs:attribute name="Stroke" type="xs:string" />
+    <xs:attribute name="StrokeWidth" type="xs:float" />
+    <xs:attribute name="Placeholder" type="xs:string" />
+    <xs:attribute name="Text" type="xs:string" />
+    <xs:attribute name="ScrollPaddingTop" type="xs:float" />
+    <xs:attribute name="ScrollPaddingBottom" type="xs:float" />
+    <xs:attribute name="ScrollbarVisible" type="BoolType" />
+    <xs:attribute name="ScrollbarWidth" type="xs:float" />
+    <xs:attribute name="ScrollbarPadding" type="xs:float" />
+    <xs:attribute name="ScrollbarColor" type="xs:string" />
+    <xs:attribute name="ScrollbarTrackColor" type="xs:string" />
+    <xs:attribute name="Click" type="xs:string" />
+    <xs:attribute name="Press" type="xs:string" />
+    <xs:attribute name="HoverEnter" type="xs:string" />
+    <xs:attribute name="HoverLeave" type="xs:string" />
+    <xs:attribute name="Submit" type="xs:string" />
+  </xs:complexType>
+
+  <xs:element name="Control" type="ControlType" />
+  <xs:element name="Background" type="ControlType" />
+  <xs:element name="CloseButton" type="ControlType" />
+
+  <xs:element name="Window">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="Control" />
+        <xs:element ref="Background" />
+        <xs:element ref="CloseButton" />
+      </xs:choice>
+      <xs:attribute name="Svg" type="xs:string" use="required" />
+      <xs:attribute name="HorizontalAlignment" type="HAlignType" />
+      <xs:attribute name="VerticalAlignment" type="VAlignType" />
+      <xs:attribute name="Stretch" type="StretchType" />
+      <xs:attribute name="Title" type="xs:string" />
+      <xs:attribute name="Width" type="xs:int" />
+      <xs:attribute name="Height" type="xs:int" />
+      <xs:attribute name="Icon" type="xs:string" />
+      <xs:attribute name="WindowStyle" type="WindowStyleType" />
+      <xs:attribute name="WindowStartupLocation" type="StartupLocationType" />
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

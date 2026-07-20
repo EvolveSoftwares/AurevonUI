@@ -77,6 +77,7 @@ public abstract class AuiWindow : AurevonApp
         public bool Bold;
         public Color Fill = Color.White;
         public string InitialText = "";
+        public SKTextAlign Alignment = SKTextAlign.Left;
     }
 
     private readonly Dictionary<string, InputInfo> _input_info = new();
@@ -557,6 +558,7 @@ public abstract class AuiWindow : AurevonApp
             Tc.TextBold = Ii.Bold;
             Tc.TextColor = Ii.Fill;
             Tc.InitialText = Ii.InitialText;
+            Tc.TextAlignment = Ii.Alignment;
             Tc.HasCapturedText = true;
         }
 
@@ -582,7 +584,7 @@ public abstract class AuiWindow : AurevonApp
                 GenerateItems(Ic, Ic.ItemsSource);
         }
 
-        // Seřadit prvky podle pořadí definice v .aui XML souboru, aby se správně choval Z-order (jako ve WPF/Avalonia)
+
         var auiOrder = new Dictionary<XElement, int>();
         int orderSeq = 0;
         void WalkAui(XElement parent)
@@ -1231,8 +1233,16 @@ public abstract class AuiWindow : AurevonApp
 
             if (PathEls.Count == 0)
             {
+                var text_val = T.Value;
+                Console.WriteLine($"[AUI] Text '{text_val}' removed because PathEls is empty.");
                 T.Remove();
                 continue;
+            }
+            else
+            {
+                var text_val = T.Value;
+                var path_len = PathEls[0].Attribute("d")?.Value.Length ?? 0;
+                Console.WriteLine($"[AUI] Replaced text '{text_val}' with path of length {path_len}");
             }
 
             XElement Replacement;
@@ -1372,6 +1382,15 @@ public abstract class AuiWindow : AurevonApp
                     || (int.TryParse(Weight, out var W) && W >= 600);
         var Fill = Color.Black;
         if (Attr(Txt, "fill") is { } F && Color.TryParse(F, out var C)) Fill = C;
+        
+        string Anchor = (Attr(Txt, "text-anchor") ?? "start").Trim().ToLowerInvariant();
+        var Alignment = Anchor switch
+        {
+            "middle" => SKTextAlign.Center,
+            "end" => SKTextAlign.Right,
+            _ => SKTextAlign.Left
+        };
+
         return new InputInfo
         {
             X = ParseLen(Attr(Txt, "x"), 0f),
@@ -1381,6 +1400,7 @@ public abstract class AuiWindow : AurevonApp
             Bold = Bold,
             Fill = Fill,
             InitialText = Txt.Value,
+            Alignment = Alignment,
         };
     }
 
@@ -2199,7 +2219,7 @@ public abstract class AuiWindow : AurevonApp
             }
 
             if (Shown.Length > 0)
-                ctx.DrawText(Shown, Bx, By, Size, TxtColor, C.TextFontFamily, C.TextBold);
+                ctx.DrawText(Shown, Bx, By, Size, TxtColor, C.TextFontFamily, C.TextBold, Align: C.TextAlignment);
 
             if (C is Elements.TextBox Tb && Tb.IsFocused && ((int)(ctx.Time * 2f) & 1) == 0)
             {

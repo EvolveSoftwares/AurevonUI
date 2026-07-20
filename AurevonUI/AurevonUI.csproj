@@ -10,7 +10,7 @@
 
 	<PropertyGroup>
 		<PackageId>AurevonUI</PackageId>
-		<Version>1.1.4</Version>
+		<Version>1.1.7</Version>
 		<Authors>Dominik Erdinger - WertexDigital</Authors>
 		<Company>WertexDigital</Company>
 		<Product>AurevonUI</Product>

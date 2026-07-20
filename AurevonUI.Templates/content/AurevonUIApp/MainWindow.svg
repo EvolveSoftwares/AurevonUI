@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg width="900" height="600" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg">
-  <rect id="Background" x="0" y="0" width="900" height="600" rx="16" ry="16" fill="#14161c" />
-  <g id="CloseButton">
-    <circle cx="864" cy="36" r="14" fill="#2a2d36" />
-    <path d="M858,30 L870,42 M870,30 L858,42" stroke="#e6e6e6" stroke-width="2" stroke-linecap="round" />
-  </g>
-  <text x="450" y="292" font-family="Segoe UI" font-size="28" fill="#e6e6e6" text-anchor="middle">Hello, AurevonUI!</text>
-  <text x="450" y="326" font-family="Segoe UI" font-size="14" fill="#8a8f99" text-anchor="middle">Edit MainWindow.svg to design your UI.</text>
+	<rect id="Background" x="0" y="0" width="900" height="600" rx="16" ry="16" fill="#14161c" />
+	<g id="CloseButton">
+		<circle cx="864" cy="36" r="14" fill="#2a2d36" />
+		<path d="M858,30 L870,42 M870,30 L858,42" stroke="#e6e6e6" stroke-width="2" stroke-linecap="round" />
+	</g>
+	<g id="WelcomeText">
+		<text x="450" y="292" font-family="Segoe UI" font-size="28" fill="#e6e6e6" text-anchor="middle">Hello, AurevonUI!</text>
+		<text x="450" y="326" font-family="Segoe UI" font-size="14" fill="#8a8f99" text-anchor="middle">Edit MainWindow.svg to design your UI.</text>
+	</g>
 </svg>

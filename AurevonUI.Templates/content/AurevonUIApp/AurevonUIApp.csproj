@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AurevonUI" Version="1.1.4" />
+    <PackageReference Include="AurevonUI" Version="1.1.7" />
   </ItemGroup>
 
   <ItemGroup>

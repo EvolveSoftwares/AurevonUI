@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="AurevonUI.xsd" Svg="MainWindow.svg"
-        HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform"
-        WindowStyle="None" WindowStartupLocation="CenterScreen">
+<Window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="AurevonUI.xsd" Svg="MainWindow.svg" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" WindowStyle="None" WindowStartupLocation="CenterScreen">
   <Background StretchToWindow="True" IsHittable="True" Press="DragWindow" />
   <CloseButton Cursor="Hand" Click="Close" />
 </Window>
