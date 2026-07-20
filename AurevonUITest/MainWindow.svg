@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 1280 720" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+    <rect id="Background" x="0" y="0" width="1280" height="720" style="fill:white;"/>
+    <g id="BAR">
+        <path d="M63.972,24.229L63.972,692.744C63.972,699.447 58.53,704.889 51.827,704.889L27.537,704.889C20.834,704.889 15.392,699.447 15.392,692.744L15.392,24.229C15.392,17.526 20.834,12.084 27.537,12.084L51.827,12.084C58.53,12.084 63.972,17.526 63.972,24.229Z" style="fill:url(#_Linear1);"/>
+        <circle cx="39.682" cy="38.223" r="16.634" style="fill:white;"/>
+        <circle cx="39.682" cy="82.305" r="16.634" style="fill:white;"/>
+        <circle cx="39.682" cy="169.771" r="16.634" style="fill:white;"/>
+        <circle cx="39.682" cy="125.901" r="16.634" style="fill:white;"/>
+    </g>
+    <g id="ButtonInstall">
+        <path d="M742.311,674.108L742.311,691.042C742.311,695.715 738.516,699.509 733.844,699.509L546.156,699.509C541.484,699.509 537.689,695.715 537.689,691.042L537.689,674.108C537.689,669.435 541.484,665.642 546.156,665.642L733.844,665.642C738.516,665.642 742.311,669.435 742.311,674.108Z" style="fill:url(#_Linear2);"/>
+        <g>
+            <g transform="matrix(1,0,0,1,584.132,689.523)">
+                <text x="0px" y="0px" style="font-family:'Inter18pt-SemiBold', 'Inter 18pt';font-weight:600;font-size:19.138px;fill:white;">TR</text>
+            </g>
+            <g transform="matrix(1,0,0,1,608.55,689.523)">
+                <text x="0px" y="0px" style="font-family:'Inter18pt-SemiBold', 'Inter 18pt';font-weight:600;font-size:19.138px;fill:white;">Y A</text>
+            </g>
+            <g transform="matrix(1,0,0,1,640.062,689.523)">
+                <text x="0px" y="0px" style="font-family:'Inter18pt-SemiBold', 'Inter 18pt';font-weight:600;font-size:19.138px;fill:white;">UREONUI</text>
+            </g>
+        </g>
+        <g>
+            <path d="M560.196,673.136L568.96,676.507L568.96,679.204L560.196,682.575L551.432,679.204L551.432,676.507L560.196,673.136ZM568.96,685.272L568.96,688.643L560.196,692.014L551.432,688.643L551.432,685.272L553.184,685.946L560.196,688.643L567.208,685.946L568.96,685.272ZM568.96,680.552L568.96,683.923L560.196,687.294L551.432,683.923L551.432,680.552L553.184,681.226L560.196,683.923L567.208,681.226L568.96,680.552Z" style="fill:white;"/>
+        </g>
+    </g>
+    <g id="APP">
+        <g id="Logo">
+            <path d="M609.81,387.774C532.418,449.443 608.552,318.356 646.297,315.817C693.996,312.608 599.129,419.131 682.763,387.774C732.434,369.151 687.538,325.838 609.81,387.774Z" style="fill:url(#_Linear3);stroke:url(#_Linear4);stroke-width:18.43px;"/>
+        </g>
+        <g id="ProgressBar">
+            <path d="M762.333,564.263L762.333,571.763C762.333,573.833 760.653,575.513 758.583,575.513L521.417,575.513C519.347,575.513 517.667,573.833 517.667,571.763L517.667,564.263C517.667,562.193 519.347,560.513 521.417,560.513L758.583,560.513C760.653,560.513 762.333,562.193 762.333,564.263Z" style="fill:rgb(200,200,200);"/>
+            <path id="ProgressValueBar" d="M759.709,565.062L759.709,570.964C759.709,572.593 758.386,573.915 756.758,573.915L523.242,573.915C521.614,573.915 520.291,572.593 520.291,570.964L520.291,565.062C520.291,563.433 521.614,562.11 523.242,562.11L756.758,562.11C758.386,562.11 759.709,563.433 759.709,565.062Z" style="fill:url(#_Linear5);"/>
+        </g>
+    </g>
+    <path id="MorphShape" d="M290,288 C329.77,288 362,320.23 362,360 C362,399.77 329.77,432 290,432 C250.23,432 218,399.77 218,360 C218,320.23 250.23,288 290,288 Z" style="fill:rgb(0,120,255);stroke:rgb(150,200,255);stroke-width:0px;"/>
+    <text x="290" y="476" text-anchor="middle" style="font-family:'Segoe UI';font-weight:600;font-size:15px;fill:rgb(150,163,182);">CLICK TO MORPH</text>
+    <text x="812" y="92" style="font-family:'Segoe UI';font-weight:600;font-size:24px;fill:rgb(236,239,245);">TEAM MEMBERS</text>
+    <text x="812" y="116" style="font-family:'Segoe UI';font-size:14px;fill:rgb(120,132,150);">Bound live from a C# list via {Property} tokens</text>
+    <g id="UserList">
+        <g id="UserCardTemplate">
+            <rect x="812" y="140" width="440" height="80" rx="14" style="fill:rgb(27,34,48);"/>
+            <rect x="812" y="140" width="8" height="80" rx="4" style="fill:{Accent};"/>
+            <circle cx="862" cy="180" r="22" style="fill:{Accent};"/>
+            <text x="862" y="188" text-anchor="middle" style="font-family:'Segoe UI';font-weight:600;font-size:22px;fill:rgb(14,17,22);">{Initial}</text>
+            <text x="902" y="174" style="font-family:'Segoe UI';font-weight:600;font-size:20px;fill:rgb(240,243,248);">{Name}</text>
+            <text x="902" y="198" style="font-family:'Segoe UI';font-size:15px;fill:rgb(138,147,166);">{Role}</text>
+            <text x="1232" y="188" text-anchor="end" style="font-family:'Segoe UI';font-weight:600;font-size:24px;fill:{Accent};">{Score}</text>
+        </g>
+    </g>
+    <defs>
+        <linearGradient id="_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(153.135077,34.760803,-34.760803,153.135077,-50.878849,404.253752)"><stop offset="0" style="stop-color:rgb(0,44,240);stop-opacity:1"/><stop offset="1" style="stop-color:rgb(0,120,255);stop-opacity:1"/></linearGradient>
+        <linearGradient id="_Linear2" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(204.621345,33.867591,-33.867591,204.621345,537.689327,665.641663)"><stop offset="0" style="stop-color:rgb(0,44,240);stop-opacity:1"/><stop offset="1" style="stop-color:rgb(0,116,254);stop-opacity:1"/></linearGradient>
+        <linearGradient id="_Linear3" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(93.981191,-59.653782,59.653782,93.981191,580.873289,404.25373)"><stop offset="0" style="stop-color:rgb(255,0,0);stop-opacity:0"/><stop offset="1" style="stop-color:rgb(190,80,80);stop-opacity:0"/></linearGradient>
+        <linearGradient id="_Linear4" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(127.247528,0,0,127.247528,576.375974,359.999838)"><stop offset="0" style="stop-color:rgb(0,44,240);stop-opacity:1"/><stop offset="1" style="stop-color:rgb(0,120,255);stop-opacity:1"/></linearGradient>
+        <linearGradient id="_Linear5" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(239.417709,0,0,239.417709,520.291146,568.012841)"><stop offset="0" style="stop-color:rgb(0,119,255);stop-opacity:1"/><stop offset="1" style="stop-color:rgb(0,47,241);stop-opacity:1"/></linearGradient>
+    </defs>
+</svg>

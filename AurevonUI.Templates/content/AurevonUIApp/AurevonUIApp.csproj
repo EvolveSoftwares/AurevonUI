@@ -1,0 +1,72 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>partial</TrimMode>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <TrimmerRootAssembly Include="Silk.NET.Core" />
+    <TrimmerRootAssembly Include="Silk.NET.Maths" />
+    <TrimmerRootAssembly Include="Silk.NET.OpenGL" />
+    <TrimmerRootAssembly Include="Silk.NET.Windowing.Common" />
+    <TrimmerRootAssembly Include="Silk.NET.Windowing.Glfw" />
+    <TrimmerRootAssembly Include="Silk.NET.Input.Common" />
+    <TrimmerRootAssembly Include="Silk.NET.Input.Glfw" />
+    <TrimmerRootAssembly Include="Silk.NET.GLFW" />
+    <TrimmerRootAssembly Include="Svg.Model" />
+    <TrimmerRootAssembly Include="Svg.Custom" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AurevonUI" Version="1.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="**\*.svg" Exclude="$(DefaultItemExcludes)" />
+    <AdditionalFiles Include="**\*.aui" Exclude="$(DefaultItemExcludes)" />
+    <EmbeddedResource Include="**\*.svg" Exclude="$(DefaultItemExcludes)" />
+    <EmbeddedResource Include="**\*.aui" Exclude="$(DefaultItemExcludes)" />
+    <EmbeddedResource Include="**\*.ttf" Exclude="$(DefaultItemExcludes)" />
+    <EmbeddedResource Include="**\*.otf" Exclude="$(DefaultItemExcludes)" />
+    <EmbeddedResource Include="**\*.png" Exclude="$(DefaultItemExcludes)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="MainWindow.cs">
+      <DependentUpon>MainWindow.aui</DependentUpon>
+    </Compile>
+    <AdditionalFiles Update="MainWindow.svg">
+      <DependentUpon>MainWindow.aui</DependentUpon>
+    </AdditionalFiles>
+    <EmbeddedResource Update="MainWindow.svg">
+      <DependentUpon>MainWindow.aui</DependentUpon>
+    </EmbeddedResource>
+    <None Update="AurevonUI.xsd">
+      <DependentUpon>MainWindow.aui</DependentUpon>
+    </None>
+  </ItemGroup>
+
+  <Target Name="EnsurePublishNatives" AfterTargets="Publish">
+    <ItemGroup>
+      <_NativeLib Include="$(OutDir)lib*.dll;$(OutDir)glfw*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_NativeLib)" DestinationFolder="$(PublishDir)"
+          SkipUnchangedFiles="false" OverwriteReadOnlyFiles="true" />
+  </Target>
+
+  <Target Name="StripPublishPdbs" AfterTargets="Publish;EnsurePublishNatives">
+    <ItemGroup>
+      <_PublishPdb Include="$(PublishDir)**\*.pdb" />
+    </ItemGroup>
+    <Delete Files="@(_PublishPdb)" />
+  </Target>
+
+</Project>

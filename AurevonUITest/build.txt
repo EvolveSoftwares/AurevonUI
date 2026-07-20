@@ -1,0 +1,8 @@
+﻿dotnet pack AurevonUI\AurevonUI.csproj -c Release
+dotnet pack AurevonUI.Templates\AurevonUI.Templates.csproj -c Release
+
+dotnet new install AurevonUI.Templates/bin/Release/AurevonUI.Templates.1.0.0.nupkg --force
+
+dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true
+
+dotnet new uninstall AurevonUI.Templates

@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Dominik Erdinger - WertexDigital",
+  "classifications": [ "Desktop", "UI", "AurevonUI" ],
+  "identity": "AurevonUI.App.CSharp",
+  "name": "AurevonUI App",
+  "description": "A cross-platform desktop app whose UI is rendered from an SVG design, using AurevonUI.",
+  "shortName": "aurevonui-app",
+  "defaultName": "AurevonUIApp",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "AurevonUIApp",
+  "preferNameDirectory": true,
+  "sources": [
+    {
+      "exclude": [ "**/bin/**", "**/obj/**", ".template.config/**" ]
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="AurevonUI/AurevonUI.csproj" />
+  <Project Path="AurevonUI.Templates/AurevonUI.Templates.csproj" />
+  <Project Path="AurevonUITest/AurevonUITest.csproj" />
+</Solution>

@@ -1,0 +1,90 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <ApplicationIcon>Icon/AUI.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>partial</TrimMode>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <TrimmerRootAssembly Include="Silk.NET.Core" />
+    <TrimmerRootAssembly Include="Silk.NET.Maths" />
+    <TrimmerRootAssembly Include="Silk.NET.OpenGL" />
+    <TrimmerRootAssembly Include="Silk.NET.Windowing.Common" />
+    <TrimmerRootAssembly Include="Silk.NET.Windowing.Glfw" />
+    <TrimmerRootAssembly Include="Silk.NET.Input.Common" />
+    <TrimmerRootAssembly Include="Silk.NET.Input.Glfw" />
+    <TrimmerRootAssembly Include="Silk.NET.GLFW" />
+    <TrimmerRootAssembly Include="Svg.Model" />
+    <TrimmerRootAssembly Include="Svg.Custom" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AurevonUI\AurevonUI.csproj" />
+
+    <ProjectReference Include="..\AurevonUI.Generator\AurevonUI.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <!-- UI assets, recursive: works whether your .svg/.aui/fonts/images sit in the project root
+       or in any subfolder layout (Views\, Assets\, …). Excludes bin/obj so build artifacts are
+       never embedded. -->
+  <ItemGroup>
+    <AdditionalFiles Include="**\*.svg" Exclude="$(DefaultItemExcludes)" />
+    <AdditionalFiles Include="**\*.aui" Exclude="$(DefaultItemExcludes)" />
+    <EmbeddedResource Include="**\*.svg" Exclude="$(DefaultItemExcludes)" />
+    <EmbeddedResource Include="**\*.aui" Exclude="$(DefaultItemExcludes)" />
+    <EmbeddedResource Include="**\*.ttf" Exclude="$(DefaultItemExcludes)" />
+    <EmbeddedResource Include="**\*.otf" Exclude="$(DefaultItemExcludes)" />
+    <EmbeddedResource Include="**\*.png" Exclude="$(DefaultItemExcludes)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="MainWindow.cs">
+      <DependentUpon>MainWindow.aui</DependentUpon>
+    </Compile>
+    <AdditionalFiles Update="MainWindow.svg">
+      <DependentUpon>MainWindow.aui</DependentUpon>
+    </AdditionalFiles>
+    <EmbeddedResource Update="MainWindow.svg">
+      <DependentUpon>MainWindow.aui</DependentUpon>
+    </EmbeddedResource>
+    <None Update="AurevonUI.xsd">
+      <DependentUpon>MainWindow.aui</DependentUpon>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Icon\AUI.ico" />
+  </ItemGroup>
+
+  <!-- Incremental single-file publish has an SDK bug: on a re-publish into a non-empty folder it
+       drops the loose native libraries (glfw3/libSkiaSharp/libHarfBuzzSharp) without re-copying
+       them, so the app then crashes at startup (SkiaSharp type initializer). Re-copy the native
+       libs from the build output (where they always are) after every publish, so they are always
+       present regardless of the publish pipeline's incremental state. -->
+  <Target Name="EnsurePublishNatives" AfterTargets="Publish">
+    <ItemGroup>
+      <_NativeLib Include="$(OutDir)lib*.dll;$(OutDir)glfw*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_NativeLib)" DestinationFolder="$(PublishDir)"
+          SkipUnchangedFiles="false" OverwriteReadOnlyFiles="true" />
+  </Target>
+
+  <!-- The SkiaSharp/HarfBuzz native packages drop huge .pdb symbol files (libSkiaSharp.pdb is
+       ~84 MB) next to the published exe. Strip every .pdb from the publish output so the shipped
+       folder is just the exe + the three native .dlls. -->
+  <Target Name="StripPublishPdbs" AfterTargets="Publish;EnsurePublishNatives">
+    <ItemGroup>
+      <_PublishPdb Include="$(PublishDir)**\*.pdb" />
+    </ItemGroup>
+    <Delete Files="@(_PublishPdb)" />
+  </Target>
+
+</Project>

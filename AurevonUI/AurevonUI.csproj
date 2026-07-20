@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<IsTrimmable>true</IsTrimmable>
+	</PropertyGroup>
+
+
+	<PropertyGroup>
+		<PackageId>AurevonUI</PackageId>
+		<Version>1.1.4</Version>
+		<Authors>Dominik Erdinger - WertexDigital</Authors>
+		<Company>WertexDigital</Company>
+		<Product>AurevonUI</Product>
+		<Description>AurevonUI is a cross-platform .NET UI toolkit that renders its entire interface from SVG. Design in Affinity/Illustrator/Inkscape, wire it up with a tiny .aui overlay, and get strongly-typed controls, anchor-based layout, keyframe animation and live hot reload out of the box.</Description>
+		<PackageTags>ui;gui;skia;svg;crossplatform;desktop;animation;sourcegenerator</PackageTags>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Copyright>Copyright © $([System.DateTime]::Now.Year) Dominik Erdinger - WertexDigital</Copyright>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageIcon>icon.png</PackageIcon>
+
+
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NoWarn>$(NoWarn);CS1591</NoWarn>
+	</PropertyGroup>
+
+	<ItemGroup>
+
+		<None Include="README.md" Pack="true" PackagePath="\" />
+		<None Include="Icon\AurevonUI.png" Pack="true" PackagePath="icon.png" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+
+		<Compile Include="..\AurevonUI.Generator\AuiSyncCore.cs" Link="AuiSyncCore.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+
+		<ProjectReference Include="..\AurevonUI.Generator\AurevonUI.Generator.csproj" PrivateAssets="all" ReferenceOutputAssembly="false" SkipGetTargetFrameworkProperties="true" />
+	</ItemGroup>
+
+	<ItemGroup>
+
+		<None Include="..\AurevonUI.Generator\bin\$(Configuration)\netstandard2.0\AurevonUI.Generator.dll"
+		      Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<PackageReference Include="Silk.NET.Input" Version="2.23.0" />
+		<PackageReference Include="Silk.NET.OpenGL" Version="2.23.0" />
+		<PackageReference Include="Silk.NET.Windowing" Version="2.23.0" />
+		<PackageReference Include="SkiaSharp" Version="3.119.4" />
+		<PackageReference Include="SkiaSharp.HarfBuzz" Version="3.119.4" />
+		<PackageReference Include="Svg.Skia" Version="5.1.1" />
+	</ItemGroup>
+
+</Project>

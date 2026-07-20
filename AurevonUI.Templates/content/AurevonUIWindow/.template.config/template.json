@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Dominik Erdinger - WertexDigital",
+  "classifications": [ "Desktop", "UI", "AurevonUI" ],
+  "identity": "AurevonUI.Window.CSharp",
+  "name": "AurevonUI Window",
+  "description": "An AurevonUI window: SVG design + .aui overlay + typed C# code-behind.",
+  "shortName": "aurevonui-window",
+  "defaultName": "NewWindow",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "sourceName": "AurevonUIWindow",
+  "symbols": {
+    "rootnamespace": {
+      "type": "bind",
+      "binding": "msbuild:RootNamespace",
+      "replaces": "AurevonUINamespace",
+      "defaultValue": "AurevonUIApp"
+    }
+  },
+  "sources": [
+    {
+      "exclude": [ "**/bin/**", "**/obj/**", ".template.config/**" ]
+    }
+  ]
+}

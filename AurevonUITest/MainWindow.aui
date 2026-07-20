@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="AurevonUI.xsd" Svg="MainWindow.svg" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform">
+  <Background StretchToWindow="True" HorizontalAlignment="Center" VerticalAlignment="Center" />
+  <BAR HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="10" />
+  <ButtonInstall Cursor="Hand" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,20" HoverEnter="OnButtonInstallHoverEnter" HoverLeave="OnButtonInstallHoverLeave" Click="OnButtonInstallClick" />
+  <APP VerticalAlignment="Center" HorizontalAlignment="Center">
+    <Logo StrokeWidth="0" Cursor="Hand" HoverEnter="OnLogoHoverEnter" HoverLeave="OnLogoHoverLeave" Click="OnLogoClick" />
+    <ProgressBar>
+      <ProgressValueBar MarginPercent="-1,-1,40,-1" Margin="2" />
+    </ProgressBar>
+  </APP>
+  <MorphShape />
+  <UserList />
+</Window>
