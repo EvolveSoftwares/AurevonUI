@@ -6,6 +6,7 @@ controls, anchor layout, keyframe animation, and live hot reload — no XAML, no
 
 > .NET 10 · rendering via [SkiaSharp](https://github.com/mono/SkiaSharp) over OpenGL
 > ([Silk.NET](https://github.com/dotnet/Silk.NET)) · Windows / Linux / macOS
+![til]([https://raw.githubusercontent.com/hashrocket/hr-til/master/app/assets/images/banner.png](https://github.com/EvolveSoftwares/AurevonUI/blob/master/Z%C3%A1znam%202026-07-21%20150018.gif?raw=true))
 
 ---
 
