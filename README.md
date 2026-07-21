@@ -6,7 +6,8 @@ controls, anchor layout, keyframe animation, and live hot reload — no XAML, no
 
 > .NET 10 · rendering via [SkiaSharp](https://github.com/mono/SkiaSharp) over OpenGL
 > ([Silk.NET](https://github.com/dotnet/Silk.NET)) · Windows / Linux / macOS
-
+---
+![til](https://github.com/EvolveSoftwares/AurevonUI/blob/master/Z%C3%A1znam%202026-07-21%20150018.gif?raw=true)
 ---
 
 ## Install
@@ -32,7 +33,9 @@ dotnet add package AurevonUI
 The library and its Roslyn source generator ship in one package.
 
 ## Quick start
-
+---
+![til](https://github.com/EvolveSoftwares/AurevonUI/blob/master/Z%C3%A1znam%202026-07-21%20162741.gif?raw=true)
+---
 Draw your UI in an SVG, giving each interactive element an `id`. Add a matching `MainWindow.aui`:
 
 ```xml
