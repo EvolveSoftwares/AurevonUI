@@ -12,7 +12,7 @@ internal class Program
         {
             Antialiasing = true,
             MsaaSamples = 8,
-            RenderScale = 1.5,
+            RenderScale = 2.0,
         };
 
         Window.Initialize(new MainWindow(), Options);
