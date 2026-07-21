@@ -10,7 +10,7 @@
 
 	<PropertyGroup>
 		<PackageId>AurevonUI</PackageId>
-		<Version>1.1.7</Version>
+		<Version>1.1.9</Version>
 		<Authors>Dominik Erdinger - WertexDigital</Authors>
 		<Company>WertexDigital</Company>
 		<Product>AurevonUI</Product>
@@ -21,9 +21,15 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageIcon>icon.png</PackageIcon>
 
+		<PackageProjectUrl>https://github.com/EvolveSoftwares/AurevonUI</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/EvolveSoftwares/AurevonUI</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+
 
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 
 
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>

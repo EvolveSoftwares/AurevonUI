@@ -5,7 +5,7 @@
 	<PropertyGroup>
 		<PackageType>Template</PackageType>
 		<PackageId>AurevonUI.Templates</PackageId>
-		<Version>1.1.7</Version>
+		<Version>1.1.9</Version>
 		<Title>AurevonUI Templates</Title>
 		<Authors>Dominik Erdinger - WertexDigital</Authors>
 		<Company>WertexDigital</Company>
@@ -13,6 +13,11 @@
 		<PackageTags>dotnet-new;templates;aurevonui;svg;ui;desktop</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>icon.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+
+		<PackageProjectUrl>https://github.com/EvolveSoftwares/AurevonUI</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/EvolveSoftwares/AurevonUI</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
 
 		<TargetFramework>netstandard2.0</TargetFramework>
 
@@ -29,6 +34,7 @@
 	<ItemGroup>
 		<Content Include="content\**\*" Exclude="content\**\bin\**;content\**\obj\**" />
 		<None Include="Icon\AurevonUI.png" Pack="true" PackagePath="icon.png" />
+		<None Include="README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
 </Project>

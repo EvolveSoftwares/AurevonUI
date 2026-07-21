@@ -9,7 +9,8 @@ public static class Animator
     private sealed class Anim
     {
         public AnimKey Key;
-        public float Duration, StartTime;
+        public float Duration;
+        public double StartTime;
         public Track? Track;
         public System.Action? OnComplete;
     }
@@ -17,7 +18,7 @@ public static class Animator
     private static readonly ConcurrentDictionary<AnimKey, Anim> _anims_dict = new();
     private static Anim[] _finished_buffer = new Anim[16];
     private static int _finished_count;
-    private static float _current_time;
+    private static double _current_time;
 
     public static void Timeline(float Duration, params Step[] Steps)
         => Run(Duration, Ease.CubicOut, 0f, true, null, Steps);
@@ -84,14 +85,14 @@ public static class Animator
         _anims_dict[Key] = NewAnim;
     }
 
-    internal static void Tick(float Time, float Dt)
+    internal static void Tick(double Time, float Dt)
     {
         _current_time = Time;
         _finished_count = 0;
         foreach (var Kvp in _anims_dict)
         {
             Anim A = Kvp.Value;
-            float E = Time - A.StartTime;
+            float E = (float)(Time - A.StartTime);
             if (E < 0f) continue;
 
             float K = A.Duration <= 0f ? 1f : System.Math.Clamp(E / A.Duration, 0f, 1f);

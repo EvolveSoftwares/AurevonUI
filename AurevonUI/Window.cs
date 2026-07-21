@@ -52,7 +52,8 @@ public sealed class Window
         int Width = App.Width;
         int Height = App.Height;
 
-        int Samples = Win._render_options.Antialiasing
+        bool Supersampling = Win._render_options.RenderScale > 1.001;
+        int Samples = Win._render_options.Antialiasing && !Supersampling
             ? Math.Max(1, Win._render_options.MsaaSamples)
             : 1;
 
@@ -273,7 +274,7 @@ public sealed class Window
         double CurrentFrameTime = _global_clock.Elapsed.TotalSeconds;
         if (Math.Abs(CurrentFrameTime - _last_global_tick_time) > 0.001)
         {
-            Animator.Tick((float)Time, (float)Delta);
+            Animator.Tick(Time, (float)Delta);
             _last_global_tick_time = CurrentFrameTime;
         }
 
@@ -305,10 +306,9 @@ public sealed class Window
             _ss_surface.Flush();
             using var Frame = _ss_surface.Snapshot();
 
-            var DownSampling = new SKSamplingOptions(SKCubicResampler.Mitchell);
             var WinCanvas = _surface.Canvas;
             WinCanvas.Clear(BgColor);
-            WinCanvas.DrawImage(Frame, new SKRect(0, 0, FbW, FbH), DownSampling);
+            WinCanvas.DrawImage(Frame, new SKRect(0, 0, FbW, FbH), _render_options.FilterQuality);
         }
         else
         {

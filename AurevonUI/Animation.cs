@@ -54,29 +54,70 @@ namespace AurevonUI
         private static readonly Regex _num_re = new(
             @"[-+]?(\d*\.\d+|\d+\.?\d*)([eE][-+]?\d+)?", RegexOptions.Compiled);
 
+        private sealed class MorphPlan
+        {
+            public string? From;
+            public string? To;
+            public bool Compatible;
+            public float[] FromNums = Array.Empty<float>();
+            public float[] ToNums = Array.Empty<float>();
+            public int[] Starts = Array.Empty<int>();
+            public int[] Lengths = Array.Empty<int>();
+        }
+
+        [ThreadStatic] private static MorphPlan? _morph_plan;
+        [ThreadStatic] private static StringBuilder? _morph_sb;
+
         public static string MorphPathData(string? From, string? To, float T)
         {
             if (string.IsNullOrEmpty(From)) return To ?? "";
             if (string.IsNullOrEmpty(To)) return From!;
 
-            var Fm = _num_re.Matches(From!);
-            var Tm = _num_re.Matches(To!);
-            if (Fm.Count != Tm.Count || Skeleton(From!, Fm) != Skeleton(To!, Tm))
+            var Plan = _morph_plan;
+            if (Plan is null || !ReferenceEquals(Plan.From, From) || !ReferenceEquals(Plan.To, To))
+                _morph_plan = Plan = BuildMorphPlan(From!, To!);
+
+            if (!Plan.Compatible)
                 return T < 0.5f ? From! : To!;
 
-            var Sb = new StringBuilder(To!.Length + 8);
+            var Sb = _morph_sb ??= new StringBuilder(To!.Length + 16);
+            Sb.Clear();
             int Last = 0;
-            for (int I = 0; I < Tm.Count; I++)
+            for (int I = 0; I < Plan.Starts.Length; I++)
+            {
+                int Start = Plan.Starts[I];
+                Sb.Append(To, Last, Start - Last);
+                Sb.Append(Lerp(Plan.FromNums[I], Plan.ToNums[I], T).ToString("0.####", CultureInfo.InvariantCulture));
+                Last = Start + Plan.Lengths[I];
+            }
+            Sb.Append(To, Last, To!.Length - Last);
+            return Sb.ToString();
+        }
+
+        private static MorphPlan BuildMorphPlan(string From, string To)
+        {
+            var Plan = new MorphPlan { From = From, To = To };
+
+            var Fm = _num_re.Matches(From);
+            var Tm = _num_re.Matches(To);
+            if (Fm.Count != Tm.Count || Skeleton(From, Fm) != Skeleton(To, Tm))
+                return Plan;
+
+            int N = Tm.Count;
+            Plan.FromNums = new float[N];
+            Plan.ToNums = new float[N];
+            Plan.Starts = new int[N];
+            Plan.Lengths = new int[N];
+            for (int I = 0; I < N; I++)
             {
                 var M = Tm[I];
-                Sb.Append(To, Last, M.Index - Last);
-                float A = ParseNum(Fm[I].Value);
-                float B = ParseNum(M.Value);
-                Sb.Append(Lerp(A, B, T).ToString("0.####", CultureInfo.InvariantCulture));
-                Last = M.Index + M.Length;
+                Plan.FromNums[I] = ParseNum(Fm[I].Value);
+                Plan.ToNums[I] = ParseNum(M.Value);
+                Plan.Starts[I] = M.Index;
+                Plan.Lengths[I] = M.Length;
             }
-            Sb.Append(To, Last, To.Length - Last);
-            return Sb.ToString();
+            Plan.Compatible = true;
+            return Plan;
         }
 
         private static string Skeleton(string S, MatchCollection Matches)

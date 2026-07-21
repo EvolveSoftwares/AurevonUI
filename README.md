@@ -11,6 +11,20 @@ controls, anchor layout, keyframe animation, and live hot reload — no XAML, no
 
 ## Install
 
+Fastest way — scaffold a ready-to-run app from the templates:
+
+```bash
+dotnet new install AurevonUI.Templates
+dotnet new aurevonui-app -n MyApp
+cd MyApp
+dotnet run
+```
+
+Need another window later? Run `dotnet new aurevonui-window -n SettingsWindow` inside the project.
+Both templates also appear in the Visual Studio **New Project** / **Add New Item** dialogs.
+
+Or add the library to an existing project:
+
 ```bash
 dotnet add package AurevonUI
 ```

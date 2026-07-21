@@ -287,12 +287,27 @@ public abstract class AuiWindow : AurevonApp
             return Gen;
         }
 
-        foreach (var el in root.Elements())
+        void PromoteOrphans(XElement Parent, bool InTemplate)
         {
-            if (!VisualTags.Contains(el.Name.LocalName)) continue;
-            if ((string?)el.Attribute("id") is not null) continue;
-            el.SetAttributeValue("id", NextAutoId());
+            bool SeenControl = false;
+            foreach (var El in Parent.Elements())
+            {
+                var Ln = El.Name.LocalName;
+                if (NonVisual.Contains(Ln)) continue;
+
+                bool ChildInTemplate = InTemplate || IsTemplateId((string?)El.Attribute("id"));
+                if (!ChildInTemplate && VisualTags.Contains(Ln))
+                {
+                    if ((string?)El.Attribute("id") is not null)
+                        SeenControl = true;
+                    else if (SeenControl)
+                        El.SetAttributeValue("id", NextAutoId());
+                }
+
+                PromoteOrphans(El, ChildInTemplate);
+            }
         }
+        PromoteOrphans(root, false);
 
         var ClipTarget = new Dictionary<string, string>();
         foreach (var cp in root.Descendants().Where(e => e.Name.LocalName == "clipPath"))
@@ -401,6 +416,7 @@ public abstract class AuiWindow : AurevonApp
                 ctl.Cursor = ParseCursor(Attr(TargetEl, "cursor") ?? Attr(TargetEl, "Cursor"));
                 ctl.Opacity = ParseFloat(Attr(TargetEl, "opacity") ?? Attr(TargetEl, "Opacity"), 1f);
                 ctl.Scale = ParseFloat(Attr(TargetEl, "scale") ?? Attr(TargetEl, "Scale"), 1f);
+                ctl.ZIndex = (int)ParseFloat(Attr(TargetEl, "zindex") ?? Attr(TargetEl, "ZIndex"), 0f);
                 ctl.StretchToWindow = ParseBool(Attr(TargetEl, "stretchtowindow") ?? Attr(TargetEl, "StretchToWindow"), false);
                 ctl.IsHittable = ParseBool(Attr(TargetEl, "ishittable") ?? Attr(TargetEl, "IsHittable"), true);
                 ctl.IsEnabled = ParseBool(Attr(TargetEl, "isenabled") ?? Attr(TargetEl, "IsEnabled"), true);
@@ -585,37 +601,29 @@ public abstract class AuiWindow : AurevonApp
         }
 
 
-        var auiOrder = new Dictionary<XElement, int>();
-        int orderSeq = 0;
-        void WalkAui(XElement parent)
+        bool AnyZIndex = false;
+        for (int I = 0; I < _control_list.Count; I++)
         {
-            auiOrder[parent] = orderSeq++;
-            foreach (var child in parent.Elements())
+            if (_control_list[I].ZIndex != 0)
             {
-                WalkAui(child);
+                AnyZIndex = true;
+                break;
             }
         }
-        if (AuiRoot is not null)
-        {
-            WalkAui(AuiRoot);
-        }
+        if (!AnyZIndex)
+            return;
 
-        var comparer = new Comparison<Control>((a, b) =>
+        var Comparer = new Comparison<Control>((A, B) =>
         {
-            int orderA = a.AuiElement is not null && auiOrder.TryGetValue(a.AuiElement, out int idxA) ? idxA : -1;
-            int orderB = b.AuiElement is not null && auiOrder.TryGetValue(b.AuiElement, out int idxB) ? idxB : -1;
-            if (orderA != orderB)
-                return orderA.CompareTo(orderB);
-            return a.DocOrder.CompareTo(b.DocOrder);
+            int Z = A.ZIndex.CompareTo(B.ZIndex);
+            return Z != 0 ? Z : A.DocOrder.CompareTo(B.DocOrder);
         });
 
-        _control_list.Sort(comparer);
-        foreach (var c in _control_list)
+        _control_list.Sort(Comparer);
+        foreach (var C in _control_list)
         {
-            if (c.Children.Count > 1)
-            {
-                c.Children.Sort(comparer);
-            }
+            if (C.Children.Count > 1)
+                C.Children.Sort(Comparer);
         }
     }
 
@@ -765,10 +773,20 @@ public abstract class AuiWindow : AurevonApp
         return svg.Picture;
     }
 
+    private static readonly XmlWriterSettings _svg_writer_settings = new()
+    {
+        Indent = false,
+        OmitXmlDeclaration = true,
+        CloseOutput = false,
+    };
+
     private static SKSvg? LoadSvg(XDocument doc)
     {
         var svg = new SKSvg();
-        using var ms = new MemoryStream(Encoding.UTF8.GetBytes(doc.ToString(SaveOptions.DisableFormatting)));
+        using var ms = new MemoryStream(8192);
+        using (var Writer = XmlWriter.Create(ms, _svg_writer_settings))
+            doc.Save(Writer);
+        ms.Position = 0;
         svg.Load(ms);
         return svg.Picture is null ? null : svg;
     }

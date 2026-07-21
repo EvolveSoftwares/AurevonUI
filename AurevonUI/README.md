@@ -61,6 +61,23 @@ live hot reload — no XAML, no separate designer tool, no hand-written render l
 
 ## Installation
 
+### From the templates (recommended)
+
+Scaffolds a ready-to-run app with the `.csproj` already configured — embedded assets, trimming,
+and single-file publishing all set up, so you can skip [Project setup](#project-setup) entirely:
+
+```bash
+dotnet new install AurevonUI.Templates
+dotnet new aurevonui-app -n MyApp
+cd MyApp
+dotnet run
+```
+
+Add further windows with `dotnet new aurevonui-window -n SettingsWindow`. Both templates also show
+up in the Visual Studio **New Project** / **Add New Item** dialogs.
+
+### Into an existing project
+
 ```bash
 dotnet add package AurevonUI
 ```

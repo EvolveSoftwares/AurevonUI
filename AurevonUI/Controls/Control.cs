@@ -22,6 +22,8 @@ public class Control
 
     protected internal virtual bool WantsPointerInput => false;
 
+    public int ZIndex { get; set; }
+
     public bool StretchToWindow { get; set; }
 
     public Thickness Margin { get; set; } = new Thickness(0);
@@ -86,7 +88,18 @@ public class Control
 
     internal XDocument? Skeleton;
 
-    internal XElement? SkeletonTarget;
+    private XElement? _skeleton_target;
+    private XElement[]? _style_targets;
+
+    internal XElement? SkeletonTarget
+    {
+        get => _skeleton_target;
+        set
+        {
+            _skeleton_target = value;
+            _style_targets = null;
+        }
+    }
 
     internal SKSvg? SvgOwner;
 
@@ -226,21 +239,33 @@ public class Control
     internal string? GetGeometryAttribute(string Name)
         => (string?)(SkeletonTarget ?? XmlElement)?.Attribute(Name);
 
-    private void UpdateXmlAttribute(string Name, string? Value)
+    private XElement[] StyleTargets()
     {
+        if (_style_targets is not null)
+            return _style_targets;
 
-        var Target = SkeletonTarget;
-        if (Target is null) return;
+        var Target = _skeleton_target;
+        if (Target is null)
+            return _style_targets = Array.Empty<XElement>();
 
-        UpdateElementAttribute(Target, Target, Name, Value);
+        var Found = new List<XElement> { Target };
         foreach (var Descendant in Target.Descendants())
         {
             var Ln = Descendant.Name.LocalName;
             if (Ln is "path" or "rect" or "circle" or "ellipse" or "polygon" or "polyline" or "text" or "g")
-            {
-                UpdateElementAttribute(Target, Descendant, Name, Value);
-            }
+                Found.Add(Descendant);
         }
+        return _style_targets = Found.ToArray();
+    }
+
+    private void UpdateXmlAttribute(string Name, string? Value)
+    {
+        var Target = _skeleton_target;
+        if (Target is null) return;
+
+        var Targets = StyleTargets();
+        for (int I = 0; I < Targets.Length; I++)
+            UpdateElementAttribute(Target, Targets[I], Name, Value);
 
         StyleDirty = true;
     }
