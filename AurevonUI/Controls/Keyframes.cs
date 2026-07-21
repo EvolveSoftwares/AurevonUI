@@ -324,68 +324,85 @@ internal sealed class Track
     public static Track[] Build(Step[] Steps, EasingFunc Ease)
     {
         var Sorted = Steps.OrderBy(S => S.Timeline).ToArray();
-        int Count = 0;
-        foreach (var S in Sorted)
-            Count = Math.Max(Count, S.Values.Length);
 
-        var Result = new List<Track>(Count);
-        for (int I = 0; I < Count; I++)
+        var Index = new Dictionary<AnimKey, int>();
+        var Bindings = new List<TrackValue>();
+        var Positions = new List<List<float>>();
+        var Values = new List<List<object?>>();
+
+        foreach (var S in Sorted)
         {
-            TrackValue? Rep = null;
-            var Pos = new List<float>();
-            var Vals = new List<object?>();
-            foreach (var S in Sorted)
+            float P = (float)Math.Clamp(S.Timeline, 0.0, 1.0);
+            var Vs = S.Values;
+            for (int I = 0; I < Vs.Length; I++)
             {
-                if (S.Values.Length <= I) continue;
-                var Tv = S.Values[I];
-                Rep ??= Tv;
-                Pos.Add((float)Math.Clamp(S.Timeline, 0.0, 1.0));
-                Vals.Add(Tv.Target());
+                var Tv = Vs[I];
+                if (Tv is null)
+                    continue;
+
+                if (!Index.TryGetValue(Tv.Key, out int G))
+                {
+                    G = Bindings.Count;
+                    Index[Tv.Key] = G;
+                    Bindings.Add(Tv);
+                    Positions.Add(new List<float>());
+                    Values.Add(new List<object?>());
+                }
+
+                var Pos = Positions[G];
+                var Val = Values[G];
+                if (Pos.Count > 0 && Pos[Pos.Count - 1] == P)
+                    Val[Val.Count - 1] = Tv.Target();
+                else
+                {
+                    Pos.Add(P);
+                    Val.Add(Tv.Target());
+                }
             }
-            if (Rep is null || Pos.Count == 0)
-                continue;
+        }
+
+        var Result = new Track[Bindings.Count];
+        for (int G = 0; G < Bindings.Count; G++)
+        {
+            var Rep = Bindings[G];
+            var Pos = Positions[G];
+            var Val = Values[G];
 
             if (Pos[0] > 0f)
             {
                 Pos.Insert(0, 0f);
-                Vals.Insert(0, Rep.ReadCurrent());
+                Val.Insert(0, Rep.ReadCurrent());
             }
 
             if (Pos[Pos.Count - 1] < 1f)
             {
                 Pos.Add(1f);
-                Vals.Add(Vals[Vals.Count - 1]);
+                Val.Add(Val[Val.Count - 1]);
             }
 
-            Result.Add(new Track(Rep, Pos.ToArray(), Vals.ToArray(), Ease));
+            Result[G] = new Track(Rep, Pos.ToArray(), Val.ToArray(), Ease);
         }
-        return Result.ToArray();
+        return Result;
     }
 
     public void StartFromCurrent() => _val[0] = _binding.ReadCurrent();
 
     public void SampleAt(float K)
     {
-        if (K <= _pos[0])
+        if (_pos.Length < 2)
         {
-            _binding.Sample(_val[0], _val[0], 0f);
+            _binding.Sample(_val[0], _val[0], 1f);
             return;
         }
-        if (K >= _pos[_pos.Length - 1])
-        {
-            int Last = _val.Length - 1;
-            _binding.Sample(_val[Last], _val[Last], 1f);
-            return;
-        }
-        for (int J = 0; J < _pos.Length - 1; J++)
-        {
-            if (K <= _pos[J + 1])
-            {
-                float Span = _pos[J + 1] - _pos[J];
-                float U = Span <= 1e-6f ? 1f : (K - _pos[J]) / Span;
-                _binding.Sample(_val[J], _val[J + 1], _ease(Clamp01(U)));
-                return;
-            }
-        }
+
+        float E = _ease(Clamp01(K));
+
+        int J = 0;
+        while (J < _pos.Length - 2 && E > _pos[J + 1])
+            J++;
+
+        float Span = _pos[J + 1] - _pos[J];
+        float U = Span <= 1e-6f ? 1f : (E - _pos[J]) / Span;
+        _binding.Sample(_val[J], _val[J + 1], U);
     }
 }

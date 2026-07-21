@@ -337,13 +337,35 @@ to make an element hit-testable — you don't need a separate "IsHittable" flag 
 ### Animation
 
 `Animator.Timeline` is keyframe-based. A `Step` is a moment in normalized time (`0`–`1`) holding
-one or more bound values; values across `Step`s pair up **by position**, not by name:
+one or more bound values:
 
 ```csharp
 Animator.Timeline(1f, Ease.CubicOut, delay: 0.2f,
     new Step(0.0, new Value(() => Panel.Opacity, 0f)),
     new Step(1.0, new Value(() => Panel.Opacity, 1f)));
 ```
+
+- **Values across `Step`s are matched by the property they bind to**, not by their position in the
+  list. Each distinct target (instance + property) becomes its own track with its own keyframes, so
+  the order inside a `Step` is irrelevant and different `Step`s may list different sets of
+  properties:
+
+  ```csharp
+  Animator.Timeline(1f, Ease.CubicOut,
+      new Step(0.5,
+          new Value(() => Left.StrokeWidth, 20f),
+          new Value(() => Right.StrokeWidth, 20f)),
+      new Step(1.0,
+          new Value(() => Right.StrokeWidth, 50f),   // order differs — still correct
+          new Value(() => Left.StrokeWidth, 50f),
+          new Value(() => Panel.Scale, 1.2f)));      // joins late, starts from its current value
+  ```
+
+- **The easing curve spans the whole timeline**, not each segment. A three-keyframe `CubicOut`
+  animation decelerates once from start to finish; it does not restart the curve at every
+  keyframe. Values are interpolated linearly *between* keyframes, and the eased progress drives
+  where you are along the whole sequence. Overshooting eases (`BackOut`, `ElasticOut`) still
+  overshoot past the final keyframe.
 
 - **Omit the `t = 0` keyframe** and the animation starts from the property's *current* value —
   ideal for one-shot hover/press feedback:

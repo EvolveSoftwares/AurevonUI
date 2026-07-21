@@ -5,7 +5,7 @@
 	<PropertyGroup>
 		<PackageType>Template</PackageType>
 		<PackageId>AurevonUI.Templates</PackageId>
-		<Version>1.2.0</Version>
+		<Version>1.2.2</Version>
 		<Title>AurevonUI Templates</Title>
 		<Authors>Dominik Erdinger - WertexDigital</Authors>
 		<Company>WertexDigital</Company>

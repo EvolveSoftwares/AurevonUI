@@ -106,6 +106,7 @@
     <xs:attribute name="Cursor" type="CursorType" />
     <xs:attribute name="Opacity" type="xs:float" />
     <xs:attribute name="Scale" type="xs:float" />
+    <xs:attribute name="ZIndex" type="xs:int" />
     <xs:attribute name="StretchToWindow" type="BoolType" />
     <xs:attribute name="IsHittable" type="BoolType" />
     <xs:attribute name="IsEnabled" type="BoolType" />

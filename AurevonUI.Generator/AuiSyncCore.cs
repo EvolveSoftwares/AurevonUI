@@ -1,7 +1,4 @@
-// Sdílený soubor: kompiluje se do AurevonUI.Generator (sync přímo v editoru při každé
-// změně .svg/.aui) i do AurevonUI runtime (záložní sync v DEBUG – externí editory).
-// Díky tomu existuje JEDNA implementace a výstupy se nikdy nerozejdou.
-#pragma warning disable RS1035 // zápis .aui/.xsd vedle zdrojových souborů je záměrné chování designeru
+#pragma warning disable RS1035
 
 using System;
 using System.Collections.Generic;
@@ -13,33 +10,26 @@ using System.Xml.Linq;
 
 namespace AurevonUI.Generator;
 
-/// <summary>
-/// Jádro synchronizace: strom .aui souboru se generuje a udržuje podle stromu SVG
-/// (nové controly pod správného rodiče v pořadí dokumentu, přesuny se zachováním atributů
-/// i komentářů, mazání zaniklých) a k tomu XSD schéma pro XML IntelliSense.
-/// Vše se dynamicky odvíjí od SVG souboru.
-/// </summary>
 internal static class AuiSyncCore
 {
-    private static readonly HashSet<string> VisualTags = new HashSet<string>
+    private static readonly HashSet<string> _visual_tags = new HashSet<string>
     {
         "g", "path", "rect", "circle", "ellipse", "line", "polyline", "polygon",
         "use", "image", "text", "svg", "a",
     };
 
-    private static readonly HashSet<string> NonVisualTags = new HashSet<string>
+    private static readonly HashSet<string> _non_visual_tags = new HashSet<string>
     {
         "defs", "clipPath", "mask", "filter", "linearGradient", "radialGradient",
         "pattern", "symbol", "style", "metadata", "title", "desc",
     };
 
-    private static readonly HashSet<string> AuiIgnoreTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    private static readonly HashSet<string> _aui_ignore_tags = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         "defs", "style", "resources", "window", "aui", "aurevonui"
     };
 
-    // SVG tag -> automatická typová třída controlu (AurevonUI.Elements.*).
-    private static readonly Dictionary<string, string> TagTypeNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, string> _tag_type_names = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
     {
         { "g", "Group" }, { "svg", "Group" },
         { "path", "Path" }, { "text", "TextControl" },
@@ -48,55 +38,39 @@ internal static class AuiSyncCore
         { "image", "Image" },
     };
 
-    // Vyšší moduly – přiřazují se přes atribut Type="…" a smí sedět jen na <g>.
-    // Klíč = hodnota v .aui (co uživatel napíše), hodnota = název třídy.
-    private static readonly Dictionary<string, string> ModuleTypeNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, string> _module_type_names = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
     {
         { "Text", "TextControl" }, { "TextControl", "TextControl" },
         { "TextBox", "TextBox" }, { "ScrollViewer", "ScrollViewer" },
     };
 
-    /// <summary>Hodnoty atributu Type nabízené v IntelliSense (co uživatel píše do .aui).</summary>
-    public static IEnumerable<string> ModuleNames => ModuleTypeNames.Keys;
+    private static readonly string[] _halign_values = { "Left", "Center", "Right", "Stretch" };
+    private static readonly string[] _valign_values = { "Top", "Center", "Bottom", "Stretch" };
+    private static readonly string[] _stretch_values = { "None", "Uniform", "Fill" };
+    private static readonly string[] _cursor_values =
+    {
+        "Default", "Arrow", "Hand", "Text", "Wait", "Crosshair", "No", "SizeAll", "SizeNS", "SizeWE",
+    };
 
-    /// <summary>
-    /// Určí typovou třídu controlu: modul z atributu <c>Type=</c> (jen na <c>&lt;g&gt;</c>) má
-    /// přednost, jinak automaticky podle SVG tagu. Neznámé → základní <c>Control</c>.
-    /// Stejná pravidla používá generátor (emise vlastností) i runtime (factory) – nikdy se nerozejdou.
-    /// </summary>
+    public static IEnumerable<string> ModuleNames => _module_type_names.Keys;
+
     public static string ResolveControlTypeName(string? TypeAttr, string? SvgTag)
     {
         if (!string.IsNullOrWhiteSpace(TypeAttr)
-            && ModuleTypeNames.TryGetValue(TypeAttr!.Trim(), out var Module)
+            && _module_type_names.TryGetValue(TypeAttr!.Trim(), out var Module)
             && (SvgTag is null || SvgTag.Equals("g", StringComparison.OrdinalIgnoreCase)
                                 || SvgTag.Equals("svg", StringComparison.OrdinalIgnoreCase)))
         {
             return Module;
         }
-        if (SvgTag is not null && TagTypeNames.TryGetValue(SvgTag, out var Tag))
+        if (SvgTag is not null && _tag_type_names.TryGetValue(SvgTag, out var Tag))
             return Tag;
         return "Control";
     }
 
-    /// <summary>Plně kvalifikovaný název typu pro generovaný kód.</summary>
     public static string FullTypeName(string TypeName) =>
         TypeName == "Control" ? "global::AurevonUI.Control" : "global::AurevonUI.Elements." + TypeName;
 
-    // Hodnoty enumů pro XSD – drž v souladu s enumy HAlign/VAlign/AuiStretch/Cursor v AurevonUI.
-    private static readonly string[] HAlignValues = { "Left", "Center", "Right", "Stretch" };
-    private static readonly string[] VAlignValues = { "Top", "Center", "Bottom", "Stretch" };
-    private static readonly string[] StretchValues = { "None", "Uniform", "Fill" };
-    private static readonly string[] CursorValues =
-    {
-        "Default", "Arrow", "Hand", "Text", "Wait", "Crosshair", "No", "SizeAll", "SizeNS", "SizeWE",
-    };
-
-
-    /// <summary>
-    /// Naparsuje XML bez ohledu na DOCTYPE (SVG exporty ho často mají) a bez externích entit.
-    /// Nevýznamný whitespace se zahazuje, takže serializace vždy vyjde hezky odsazená
-    /// (xml:space="preserve" v SVG zůstává respektováno).
-    /// </summary>
     public static XDocument ParseXmlLenient(string Xml)
     {
         var Settings = new XmlReaderSettings
@@ -109,30 +83,23 @@ internal static class AuiSyncCore
         return XDocument.Load(Reader);
     }
 
-    /// <summary>Element (podle id) je šablona pro ItemsControl – id obsahuje „Template".</summary>
     public static bool IsTemplateId(string? Id) =>
         Id is not null && Id.IndexOf("template", StringComparison.OrdinalIgnoreCase) >= 0;
 
-    /// <summary>
-    /// Logické id elementu v .aui: atribut <c>id</c>/<c>Id</c>/<c>Name</c>, jinak název tagu
-    /// (<c>&lt;Logo /&gt;</c> = "Logo"). Ignorované tagy a generický <c>&lt;Control&gt;</c>
-    /// bez Name logické id nemají.
-    /// </summary>
     public static string? LogicalAuiId(XElement El)
     {
         var Id = (string?)El.Attribute("id") ?? (string?)El.Attribute("Id") ?? (string?)El.Attribute("Name");
         if (Id is not null)
             return Id;
         var Tag = El.Name.LocalName;
-        if (AuiIgnoreTags.Contains(Tag) || Tag.Equals("Control", StringComparison.OrdinalIgnoreCase))
+        if (_aui_ignore_tags.Contains(Tag) || Tag.Equals("Control", StringComparison.OrdinalIgnoreCase))
             return null;
         return Tag;
     }
 
-    /// <summary>Smí se id ze SVG použít přímo jako název tagu v .aui? Jinak se zapíše jako &lt;Control Name="…"/&gt;.</summary>
     public static bool IsUsableTagName(string Id)
     {
-        if (AuiIgnoreTags.Contains(Id) || Id.Equals("Control", StringComparison.OrdinalIgnoreCase))
+        if (_aui_ignore_tags.Contains(Id) || Id.Equals("Control", StringComparison.OrdinalIgnoreCase))
             return false;
         try
         {
@@ -145,10 +112,6 @@ internal static class AuiSyncCore
         }
     }
 
-    /// <summary>
-    /// Controly ze SVG jako (Id, IdRodiče) v pořadí dokumentu. Stejná pravidla jako runtime:
-    /// jen vizuální elementy s id, mimo defs/clipPath/… a mimo šablony.
-    /// </summary>
     public static List<(string Id, string? ParentId)> CollectSvgControls(XDocument SvgDoc)
     {
         var Result = new List<(string Id, string? ParentId)>();
@@ -161,11 +124,10 @@ internal static class AuiSyncCore
         {
             var Id = (string?)El.Attribute("id");
             if (Id is null || Seen.Contains(Id)) continue;
-            if (!VisualTags.Contains(El.Name.LocalName)) continue;
-            if (El.Ancestors().Any(A => NonVisualTags.Contains(A.Name.LocalName))) continue;
+            if (!_visual_tags.Contains(El.Name.LocalName)) continue;
+            if (El.Ancestors().Any(A => _non_visual_tags.Contains(A.Name.LocalName))) continue;
             if (El.AncestorsAndSelf().Any(A => IsTemplateId((string?)A.Attribute("id")))) continue;
 
-            // Rodič = nejbližší předek, který je sám controlem (v doc pořadí už zpracovaný).
             string? ParentId = El.Ancestors()
                 .Select(A => (string?)A.Attribute("id"))
                 .FirstOrDefault(Pid => Pid is not null && Seen.Contains(Pid));
@@ -176,17 +138,11 @@ internal static class AuiSyncCore
         return Result;
     }
 
-    /// <summary>
-    /// Controly jako (Id, NázevTypu) v pořadí dokumentu SVG. Typ = modul z <c>Type=</c> v .aui
-    /// (jen na <c>&lt;g&gt;</c>), jinak automaticky podle SVG tagu. Používá generátor k emisi
-    /// silně typovaných vlastností. <paramref name="AuiText"/> smí být null (pak jen tagy).
-    /// </summary>
     public static List<(string Id, string TypeName)> CollectTypedControls(string SvgText, string? AuiText)
     {
         var Result = new List<(string Id, string TypeName)>();
         var Seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        // Type= atributy z .aui podle logického id.
         var TypeById = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         if (!string.IsNullOrEmpty(AuiText))
         {
@@ -205,7 +161,6 @@ internal static class AuiSyncCore
             catch { }
         }
 
-        // Control elementy ze SVG (pořadí dokumentu) + jejich tag → typ.
         try
         {
             var Root = ParseXmlLenient(SvgText).Root;
@@ -214,8 +169,8 @@ internal static class AuiSyncCore
                 {
                     var Id = (string?)El.Attribute("id");
                     if (Id is null || Seen.Contains(Id)) continue;
-                    if (!VisualTags.Contains(El.Name.LocalName)) continue;
-                    if (El.Ancestors().Any(A => NonVisualTags.Contains(A.Name.LocalName))) continue;
+                    if (!_visual_tags.Contains(El.Name.LocalName)) continue;
+                    if (El.Ancestors().Any(A => _non_visual_tags.Contains(A.Name.LocalName))) continue;
                     if (El.AncestorsAndSelf().Any(A => IsTemplateId((string?)A.Attribute("id")))) continue;
 
                     Seen.Add(Id);
@@ -225,7 +180,6 @@ internal static class AuiSyncCore
         }
         catch { }
 
-        // Id jen v .aui (např. <Control Name="…"/>) – typ z Type= nebo základní Control.
         foreach (var Kvp in TypeById)
         {
             if (Seen.Contains(Kvp.Key)) continue;
@@ -236,13 +190,6 @@ internal static class AuiSyncCore
         return Result;
     }
 
-    /// <summary>
-    /// Vrátí kanonický obsah .aui zrcadlící stromovou strukturu SVG (null jen při nevalidním vstupu).
-    /// Nové controly se vkládají pod svého rodiče v pořadí dokumentu, špatně zanořené elementy
-    /// se přesunou (atributy, potomci i přilehlý komentář zůstávají – hodnoty se nikdy neztrácí)
-    /// a controly, které v SVG už nejsou, se odstraní. Zapisuj přes <see cref="WriteIfChanged"/> –
-    /// ta soubor přepíše jen při reálné změně.
-    /// </summary>
     public static string? ComputeSyncedAui(string SvgText, string AuiText)
     {
         var SvgDoc = ParseXmlLenient(SvgText);
@@ -260,7 +207,6 @@ internal static class AuiSyncCore
             SvgOrder[SvgControls[I].Id] = I;
         }
 
-        // Existující deklarace v .aui podle logického id (tag nebo id/Id/Name atribut)
         var Declared = new Dictionary<string, XElement>(StringComparer.OrdinalIgnoreCase);
         foreach (var El in AuiRoot.Descendants())
         {
@@ -269,8 +215,6 @@ internal static class AuiSyncCore
                 Declared[Id] = El;
         }
 
-        // Každý control ze SVG existuje a sedí pod správným rodičem.
-        // Rodiče jdou v pořadí dokumentu vždy před potomky, takže Declared[ParentId] už existuje.
         foreach (var (Id, ParentId) in SvgControls)
         {
             var ParentEl = ParentId is null ? AuiRoot : Declared[ParentId];
@@ -284,7 +228,7 @@ internal static class AuiSyncCore
             }
             else if (El.Parent != ParentEl)
             {
-                var Comment = El.PreviousNode as XComment; // popisek elementu se stěhuje s ním
+                var Comment = El.PreviousNode as XComment;
                 Comment?.Remove();
                 El.Remove();
                 InsertInSvgOrder(ParentEl, El, SvgOrder[Id], SvgOrder);
@@ -292,25 +236,18 @@ internal static class AuiSyncCore
             }
         }
 
-        // Odstraníme controly, které už v SVG nejsou (živí potomci se přesunuli výše).
         foreach (var Kvp in Declared)
         {
             if (SvgIdSet.Contains(Kvp.Key)) continue;
             var El = Kvp.Value;
-            if (El.Parent is null) continue; // už odstraněn spolu s rodičem
+            if (El.Parent is null) continue;
             (El.PreviousNode as XComment)?.Remove();
             El.Remove();
         }
 
-        // Kanonický tvar se vrací vždy – i beze změn stromu se tím srovná odsazení/formát;
-        // WriteIfChanged pak zapíše jen pokud se výsledek od souboru skutečně liší.
         return Serialize(AuiDoc);
     }
 
-    /// <summary>
-    /// Vloží element mezi sourozence podle pořadí v SVG dokumentu: za posledního sourozence,
-    /// který je v SVG dřív. Pořadí existujících (uživatelem seřazených) elementů se nemění.
-    /// </summary>
     private static void InsertInSvgOrder(XElement ParentEl, XElement El, int MyOrder, Dictionary<string, int> SvgOrder)
     {
         XElement? After = null;
@@ -327,11 +264,6 @@ internal static class AuiSyncCore
             ParentEl.AddFirst(El);
     }
 
-    /// <summary>
-    /// Vygeneruje XSD schéma pro XML IntelliSense: každý control ze SVG je globální element
-    /// a smí být zanořený v libovolném jiném controlu (strom zrcadlí SVG). targetNamespace
-    /// odpovídá namespace .aui souboru, takže editor schéma opravdu napáruje.
-    /// </summary>
     public static string GenerateXsd(IReadOnlyList<string> ControlIds, string TargetNamespace)
     {
         var Sb = new StringBuilder();
@@ -345,16 +277,14 @@ internal static class AuiSyncCore
         Sb.AppendLine("           elementFormDefault=\"qualified\">");
         Sb.AppendLine();
 
-        AppendXsdEnum(Sb, "HAlignType", HAlignValues);
-        AppendXsdEnum(Sb, "VAlignType", VAlignValues);
-        AppendXsdEnum(Sb, "StretchType", StretchValues);
-        AppendXsdEnum(Sb, "CursorType", CursorValues);
+        AppendXsdEnum(Sb, "HAlignType", _halign_values);
+        AppendXsdEnum(Sb, "VAlignType", _valign_values);
+        AppendXsdEnum(Sb, "StretchType", _stretch_values);
+        AppendXsdEnum(Sb, "CursorType", _cursor_values);
         AppendXsdEnum(Sb, "WindowStyleType", new[] { "Window", "None" });
         AppendXsdEnum(Sb, "StartupLocationType", new[] { "Manual", "CenterScreen" });
         AppendXsdEnum(Sb, "TypeModuleType", ModuleNames.ToArray());
 
-        // Bool: v IntelliSense se nabízí jen True/False (výčet), ale přes union s patternem
-        // jsou validní i true/false/1/0 – runtime parsuje všechny varianty.
         Sb.AppendLine("  <xs:simpleType name=\"BoolType\">");
         Sb.AppendLine("    <xs:union>");
         Sb.AppendLine("      <xs:simpleType>");
@@ -372,7 +302,6 @@ internal static class AuiSyncCore
         Sb.AppendLine("  </xs:simpleType>");
         Sb.AppendLine();
 
-        // Id nepoužitelná jako název tagu se v .aui zapisují jako <Control Name="…"/>.
         var ElementNames = ControlIds.Where(IsUsableTagName).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
         Sb.AppendLine("  <xs:complexType name=\"ControlType\">");
@@ -394,6 +323,7 @@ internal static class AuiSyncCore
         Sb.AppendLine("    <xs:attribute name=\"Cursor\" type=\"CursorType\" />");
         Sb.AppendLine("    <xs:attribute name=\"Opacity\" type=\"xs:float\" />");
         Sb.AppendLine("    <xs:attribute name=\"Scale\" type=\"xs:float\" />");
+        Sb.AppendLine("    <xs:attribute name=\"ZIndex\" type=\"xs:int\" />");
         Sb.AppendLine("    <xs:attribute name=\"StretchToWindow\" type=\"BoolType\" />");
         Sb.AppendLine("    <xs:attribute name=\"IsHittable\" type=\"BoolType\" />");
         Sb.AppendLine("    <xs:attribute name=\"IsEnabled\" type=\"BoolType\" />");
@@ -462,7 +392,6 @@ internal static class AuiSyncCore
         Sb.AppendLine();
     }
 
-    /// <summary>Zapíše soubor jen když se obsah reálně liší – brání zápisovým smyčkám (generátor ↔ watcher).</summary>
     public static bool WriteIfChanged(string FilePath, string Content)
     {
         try
@@ -472,13 +401,11 @@ internal static class AuiSyncCore
         }
         catch
         {
-            // nejde přečíst – zkusíme rovnou zapsat
         }
         File.WriteAllText(FilePath, Content, new UTF8Encoding(false));
         return true;
     }
 
-    /// <summary>Přečte soubor i když ho právě drží otevřený jiný program (editor při ukládání). Null při chybě.</summary>
     public static string? TryReadFile(string FilePath)
     {
         try
@@ -498,7 +425,6 @@ internal static class AuiSyncCore
         public override Encoding Encoding => Encoding.UTF8;
     }
 
-    /// <summary>Deterministická serializace dokumentu (utf-8 deklarace, standardní odsazení).</summary>
     public static string Serialize(XDocument Doc)
     {
         using var Sw = new Utf8StringWriter();

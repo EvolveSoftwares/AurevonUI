@@ -8,7 +8,8 @@ public class RenderOptions
 
     public int MsaaSamples { get; set; } = 4;
 
-    public SkiaSharp.SKSamplingOptions FilterQuality { get; set; } = SkiaSharp.SKSamplingOptions.Default;
+    public SkiaSharp.SKSamplingOptions FilterQuality { get; set; } =
+        new SkiaSharp.SKSamplingOptions(SkiaSharp.SKCubicResampler.Mitchell);
 
     public double RenderScale { get; set; } = 1.0;
 }
